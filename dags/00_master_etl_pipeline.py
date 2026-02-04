@@ -78,7 +78,6 @@ with DAG(
     catchup=False,
     tags=['ethereum', 'etl', 'master', 'pipeline'],
     params={
-        'wallet_address': '',  # Wallet individual (opcional)
         'wallet_addresses': '',  # Múltiples wallets separadas por coma (opcional)
     }
 ) as dag:
@@ -101,7 +100,6 @@ with DAG(
         wait_for_completion=True,
         poke_interval=30,
         conf={
-            'wallet_address': '{{ params.wallet_address }}',
             'wallet_addresses': '{{ params.wallet_addresses }}',
         },
     )

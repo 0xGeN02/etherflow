@@ -10,30 +10,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 from utils.wallet_utils import WalletDataManager
 
 
-def extract_single_wallet(**context):
-    """Extrae datos de una wallet individual"""
-    wallet_address = context['params'].get('wallet_address') or os.environ.get('WALLET_ADDRESS')
-    
-    if not wallet_address:
-        raise ValueError("No se especificó WALLET_ADDRESS")
-    
-    manager = WalletDataManager()
-    print(f"Extrayendo datos de wallet: {wallet_address}")
-    
-    # Obtener datos completos de la wallet
-    data = manager.fetch_wallet_full_data(wallet_address)
-    
-    # Guardar datos raw
-    file_path = manager.save_wallet_data(wallet_address, data, stage='raw')
-    print(f"Datos guardados en: {file_path}")
-    
-    # Push a XCom para siguiente tarea
-    context['task_instance'].xcom_push(key='wallet_address', value=wallet_address)
-    context['task_instance'].xcom_push(key='file_path', value=str(file_path))
-    
-    return str(file_path)
-
-
 def extract_multiple_wallets(**context):
     """Extrae datos de múltiples wallets"""
     # Obtener lista de wallets desde variable o environment
@@ -93,7 +69,6 @@ with DAG(
     catchup=False,
     tags=['ethereum', 'extract', 'etl'],
     params={
-        'wallet_address': '',  # Wallet individual (opcional)
         'wallet_addresses': '',  # Múltiples wallets separadas por coma (opcional)
     }
 ) as dag:
