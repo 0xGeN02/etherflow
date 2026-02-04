@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Airflow
+.airflow/
+logs/
+airflow.db
+airflow.cfg
+
+# Data files
+data/
+*.json
+*.csv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+.dockerignore
+docker-compose.yaml
+
+# Otros
+*.log
+*.pid
+.env.local
+.DS_Store

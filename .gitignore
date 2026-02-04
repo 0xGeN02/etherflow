@@ -1,0 +1,41 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments (local only)
+.venv/
+env/
+venv/
+
+# Airflow local
+logs/
+*.db
+*.pid
+airflow-webserver.pid
+
+# Environment variables (NUNCA commitear!)
+.env
+.env.local
+
+# Data files (generados por el pipeline)
+data/*.json
+!data/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IMPORTANTE: NO ignorar estos archivos (necesarios para reproducibilidad)
+# pyproject.toml
+# uv.lock
+# Dockerfile
+# docker-compose.yaml
