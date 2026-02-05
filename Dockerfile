@@ -6,7 +6,7 @@ USER root
 
 # Instalar UV
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y curl git && \
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -26,8 +26,4 @@ ENV UV_SYSTEM_PYTHON=1
 
 # Instalar dependencias con UV desde el lockfile (reproducible)
 WORKDIR /opt/airflow
-RUN uv sync --frozen --no-dev || \
-    uv pip install --system requests sqlalchemy psycopg2-binary python-dotenv
-
-# Verificar instalación
-RUN python -c "import requests; import sqlalchemy; import psycopg2; print('✓ Dependencies installed from uv.lock')"
+RUN uv sync --frozen --no-dev

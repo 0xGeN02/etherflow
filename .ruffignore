@@ -1,0 +1,24 @@
+# Ruff ignore file
+# Directorios a excluir del análisis
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Cache
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Database
+chroma_db/
+
+# Docker
+.docker/
+
+# Build
+*.egg-info/
+dist/
+build/

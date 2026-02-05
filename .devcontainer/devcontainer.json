@@ -1,0 +1,28 @@
+{
+  "name": "Jira Agent Development",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "jupyter",
+  "workspaceFolder": "/app",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "ms-python.vscode-pylance"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/app/.venv/bin/python",
+        "python.terminal.activateEnvironment": true,
+        "jupyter.kernels.filter": [],
+        "python.analysis.typeCheckingMode": "basic",
+        "python.analysis.autoImportCompletions": true
+      }
+    }
+  },
+  
+  "forwardPorts": [8888, 11434],
+  "postCreateCommand": "uv sync --no-dev",
+  
+  "remoteUser": "root"
+}

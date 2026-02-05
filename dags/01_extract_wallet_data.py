@@ -4,10 +4,14 @@ from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import os
 import sys
+import redis
 
 # Agregar utils al path
 sys.path.insert(0, os.path.dirname(__file__))
 from utils.wallet_utils import WalletDataManager
+
+# Initialize Redis client
+redis_client = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
 
 def extract_multiple_wallets(**context):
@@ -29,13 +33,15 @@ def extract_multiple_wallets(**context):
         try:
             print(f"Extrayendo datos de wallet: {wallet}")
             data = manager.fetch_wallet_full_data(wallet)
-            file_path = manager.save_wallet_data(wallet, data, stage='raw')
+            # Store data in Redis
+            redis_key = f"wallet_data:{wallet}"
+            redis_client.set(redis_key, data)
             results.append({
                 'wallet': wallet,
-                'file_path': str(file_path),
+                'redis_key': redis_key,
                 'status': 'success'
             })
-            print(f"✓ Datos guardados en: {file_path}")
+            print(f"✓ Datos guardados en Redis con clave: {redis_key}")
         except Exception as e:
             print(f"✗ Error procesando wallet {wallet}: {e}")
             results.append({
