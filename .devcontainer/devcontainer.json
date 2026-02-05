@@ -1,7 +1,7 @@
 {
-  "name": "Jira Agent Development",
+  "name": "Etherflow Dev Container",
   "dockerComposeFile": "../docker-compose.yml",
-  "service": "jupyter",
+  "service": "environment",
   "workspaceFolder": "/app",
   
   "customizations": {
@@ -21,7 +21,7 @@
     }
   },
   
-  "forwardPorts": [8888, 11434],
+  "forwardPorts": [5555, 8080],
   "postCreateCommand": "uv sync --no-dev",
   
   "remoteUser": "root"

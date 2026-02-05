@@ -5,56 +5,51 @@ from datetime import datetime, timedelta
 import os
 import sys
 import redis
+import json
 
 # Agregar utils al path
 sys.path.insert(0, os.path.dirname(__file__))
 from utils.wallet_utils import WalletDataManager
 
 # Initialize Redis client
-redis_client = redis.Redis(host='localhost', port=6379, decode_responses=True)
+redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
 
 
-def extract_multiple_wallets(**context):
-    """Extrae datos de múltiples wallets"""
-    # Obtener lista de wallets desde variable o environment
-    wallets_str = context['params'].get('wallet_addresses') or os.environ.get('WALLET_ADDRESSES', '')
-    
-    if not wallets_str:
-        # Si no hay múltiples, usar la wallet por defecto
-        wallets = [os.environ.get('WALLET_ADDRESS')]
-    else:
-        # Separar por comas
-        wallets = [w.strip() for w in wallets_str.split(',') if w.strip()]
+def extract_wallet(**context):
+    """Extrae datos de una wallet"""
+
+    wallet = os.environ.get('WALLET_ADDRESS')
+    if wallet is None:
+        raise ValueError("WALLET_ADDRESS no está configurada en las variables de entorno")
     
     manager = WalletDataManager()
     results = []
     
-    for wallet in wallets:
-        try:
-            print(f"Extrayendo datos de wallet: {wallet}")
-            data = manager.fetch_wallet_full_data(wallet)
-            # Store data in Redis
-            redis_key = f"wallet_data:{wallet}"
-            redis_client.set(redis_key, data)
-            results.append({
-                'wallet': wallet,
-                'redis_key': redis_key,
-                'status': 'success'
-            })
-            print(f"✓ Datos guardados en Redis con clave: {redis_key}")
-        except Exception as e:
-            print(f"✗ Error procesando wallet {wallet}: {e}")
-            results.append({
-                'wallet': wallet,
-                'status': 'error',
-                'error': str(e)
-            })
+    try:
+        print(f"Extrayendo datos de wallet: {wallet}")
+        data = manager.fetch_wallet_full_data(wallet)
+        
+        # Guardar en Redis
+        serialized_data = json.dumps(data)
+        redis_key = f"wallet_data:raw:{wallet}"
+        redis_client.set(redis_key, serialized_data)
+        print(f"✓ Datos guardados en Redis con clave: {redis_key}")
+        
+        results.append({
+            'wallet': wallet,
+            'redis_key': redis_key,
+            'status': 'success'
+        })
+    except Exception as e:
+        print(f"✗ Error procesando wallet {wallet}: {e}")
+        results.append({
+            'wallet': wallet,
+            'status': 'error',
+            'error': str(e)
+        })
     
     # Push resultados a XCom
     context['task_instance'].xcom_push(key='extraction_results', value=results)
-    
-    successful = [r for r in results if r['status'] == 'success']
-    print(f"\n✓ Extraídas {len(successful)} de {len(results)} wallets exitosamente")
     
     return results
 
@@ -74,12 +69,9 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=['ethereum', 'extract', 'etl'],
-    params={
-        'wallet_addresses': '',  # Múltiples wallets separadas por coma (opcional)
-    }
 ) as dag:
     
-    extract_multiple = PythonOperator(
-        task_id='extract_multiple_wallets',
-        python_callable=extract_multiple_wallets,
+    extract_wallet_task = PythonOperator(
+        task_id='extract_wallet',
+        python_callable=extract_wallet,
     )

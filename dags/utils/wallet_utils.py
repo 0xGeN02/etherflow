@@ -101,22 +101,9 @@ class WalletDataManager:
             return json.load(f)
     
     def list_wallet_files(self, stage: str = 'raw') -> List[Path]:
-        """Lista todos los archivos de wallets en una etapa específica"""
+        """Lista todos los archivos de una wallet en una etapa específica"""
         pattern = f"wallet_{stage}_*.json"
         return list(self.data_dir.glob(pattern))
-    
-    def get_all_wallet_addresses(self, stage: str = 'raw') -> List[str]:
-        """Obtiene todas las direcciones de wallets de los archivos procesados"""
-        files = self.list_wallet_files(stage)
-        addresses = []
-        for file in files:
-            try:
-                data = json.loads(file.read_text())
-                if 'wallet_address' in data:
-                    addresses.append(data['wallet_address'])
-            except Exception as e:
-                print(f"Error leyendo {file}: {e}")
-        return addresses
 
 
 def wei_to_eth(wei_value: str) -> float:
